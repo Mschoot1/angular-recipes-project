@@ -12,7 +12,7 @@ export class RecipeService {
   recipesChanged = new Subject<Recipe[]>();
 
   private headers = new Headers({'Content-Type': 'application/json'});
-  private serverUrl = environment.serverUrl + '/recipes'; // URL to web api
+  private serverUrl = environment.serverUrl; // URL to web api
   private recipes: Recipe[] = [];
 
   constructor(private slService: ShoppingListService, private http: Http) {
@@ -20,7 +20,7 @@ export class RecipeService {
 
   public getRecipes(): Promise<Recipe[]> {
     console.log('items ophalen van server');
-    return this.http.get(this.serverUrl, {headers: this.headers})
+    return this.http.get(this.serverUrl + '/recipes', {headers: this.headers})
       .toPromise()
       .then(response => {
         console.dir(response.json());
@@ -34,11 +34,35 @@ export class RecipeService {
   }
 
   public getRecipe(_id: string): Promise<Recipe> {
-    return this.http.get(this.serverUrl + '/' + _id, {headers: this.headers})
+    return this.http.get(this.serverUrl + '/recipes/' + _id, {headers: this.headers})
       .toPromise()
       .then(response => {
         console.dir(response.json());
         return response.json() as Recipe;
+      })
+      .catch(error => {
+        console.log('handleError');
+        return Promise.reject(error.message || error);
+      });
+  }
+
+  public getIngredients(recipe: Recipe) {
+    const calls = [];
+    for (let i = 0; i < recipe.ingredients.length; i++) {
+      calls[i] = this.getIngredient(recipe.ingredients[i]);
+    }
+    Promise.all(calls)
+      .then((ingredients: Ingredient[]) => {
+        recipe.ingredients = ingredients;
+      });
+  }
+
+  public getIngredient(ingredient: Ingredient): Promise<Ingredient> {
+    console.log('serverUrl: ' + this.serverUrl + '/ingredients/' + ingredient);
+    return this.http.get(this.serverUrl + '/ingredients/' + ingredient, {headers: this.headers})
+      .toPromise()
+      .then(response => {
+        return response.json() as Ingredient;
       })
       .catch(error => {
         console.log('handleError');
@@ -61,7 +85,7 @@ export class RecipeService {
   }
 
   deleteRecipe(_id: string) {
-    this.http.delete(this.serverUrl + '/' + _id, {headers: this.headers})
+    this.http.delete(this.serverUrl + '/recipes/' + _id, {headers: this.headers})
       .toPromise()
       .then(response => {
         console.dir(response.json());

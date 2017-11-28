@@ -3,6 +3,7 @@ import {ActivatedRoute, Params, Router} from '@angular/router';
 
 import {Recipe} from '../recipe.model';
 import {RecipeService} from '../recipe.service';
+import {Ingredient} from "../../shared/ingredient.model";
 
 @Component({
   selector: 'app-recipe-detail',
@@ -27,6 +28,7 @@ export class RecipeDetailComponent implements OnInit {
             .then(recipe => {
               console.log('recipe._id: ' + recipe._id);
               this.recipe = recipe;
+              this.recipeService.getIngredients(recipe);
             })
             .catch(error => console.log(error));
         }
