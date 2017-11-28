@@ -18,17 +18,14 @@ export class RecipeService {
   constructor(private slService: ShoppingListService, private http: Http) {
   }
 
-  // getRecipes() {
-  //   return this.recipes.slice();
-  // }
-
   public getRecipes(): Promise<Recipe[]> {
     console.log('items ophalen van server');
     return this.http.get(this.serverUrl, {headers: this.headers})
       .toPromise()
       .then(response => {
         console.dir(response.json());
-        return response.json() as Recipe[];
+        this.recipes = response.json() as Recipe[];
+        return this.recipes;
       })
       .catch(error => {
         console.log('handleError');
@@ -64,7 +61,25 @@ export class RecipeService {
   }
 
   deleteRecipe(_id: string) {
-    // this.recipes.splice(_id, 1);
-    // this.recipesChanged.next(this.recipes.slice());
+    this.http.delete(this.serverUrl + '/' + _id, {headers: this.headers})
+      .toPromise()
+      .then(response => {
+        console.dir(response.json());
+      })
+      .catch(error => {
+        console.log('handleError');
+      });
+    console.log('recipes.length: ' + this.recipes.length);
+    this.recipes.splice(this.findIndexById(_id), 1);
+  }
+
+  private findIndexById(id: string) {
+    for (let i = 0; i < this.recipes.length; i++) {
+      console.log('i: ' + i);
+      if (this.recipes[i]._id === id) {
+        return i;
+      }
+    }
+    return this.recipes.length;
   }
 }
