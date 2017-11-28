@@ -12,7 +12,7 @@ export class RecipeService {
   recipesChanged = new Subject<Recipe[]>();
 
   private headers = new Headers({'Content-Type': 'application/json'});
-  private serverUrl = environment.serverUrl + '/users'; // URL to web api
+  private serverUrl = environment.serverUrl + '/recipes'; // URL to web api
   private recipes: Recipe[] = [];
 
   constructor(private slService: ShoppingListService, private http: Http) {
