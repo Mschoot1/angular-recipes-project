@@ -36,26 +36,35 @@ export class RecipeService {
       });
   }
 
-  getRecipe(index: number) {
-    return this.recipes[index];
+  public getRecipe(_id: string): Promise<Recipe> {
+    return this.http.get(this.serverUrl + '/' + _id, {headers: this.headers})
+      .toPromise()
+      .then(response => {
+        console.dir(response.json());
+        return response.json() as Recipe;
+      })
+      .catch(error => {
+        console.log('handleError');
+        return Promise.reject(error.message || error);
+      });
   }
 
   addIngredientsToShoppingList(ingredients: Ingredient[]) {
     this.slService.addIngredients(ingredients);
   }
 
-  addRecipe(recipe: Recipe) {
-    this.recipes.push(recipe);
+  addRecipe(_id: Recipe) {
+    this.recipes.push(_id);
     this.recipesChanged.next(this.recipes.slice());
   }
 
-  updateRecipe(index: number, newRecipe: Recipe) {
-    this.recipes[index] = newRecipe;
+  updateRecipe(_id: string, newRecipe: Recipe) {
+    this.recipes[_id] = newRecipe;
     this.recipesChanged.next(this.recipes.slice());
   }
 
-  deleteRecipe(index: number) {
-    this.recipes.splice(index, 1);
-    this.recipesChanged.next(this.recipes.slice());
+  deleteRecipe(_id: string) {
+    // this.recipes.splice(_id, 1);
+    // this.recipesChanged.next(this.recipes.slice());
   }
 }
